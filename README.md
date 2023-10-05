@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project lets you talk to an AI participant in a Daily call. The AI participant will talk to you just like anybody else on the call, and you can configure their behavior based on your use case.
+This project lets you talk to an AI participant in a Daily call. The AI participant will tell you a story based on suggestions you make.
 
 ## Key ingredients
 
