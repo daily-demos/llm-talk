@@ -11,14 +11,15 @@ class OpenAIService(AIService):
         pass
 
     def run_llm(self, messages):
-        print("generating question: openai")
-
+        model = os.getenv("OPEN_AI_MODEL")
+        if not model:
+            model = "gpt-4"
         response = openai.ChatCompletion.create(
             api_type = 'openai',
             api_version = '2020-11-07',
             api_base = "https://api.openai.com/v1",
             api_key = os.getenv("OPEN_AI_KEY"),
-            model="gpt-4",
+            model=model,
             stream=True,
             messages=messages
         )
@@ -40,7 +41,6 @@ class OpenAIService(AIService):
         image_url = image["data"][0]["url"]
         print("🖌️ generated image from url", image["data"][0]["url"])
         response = requests.get(image_url)
-        #print("🖌️ got image from url", response)
         dalle_stream = io.BytesIO(response.content)
         dalle_im = Image.open(dalle_stream)
         return (image_url, dalle_im)

@@ -9,6 +9,7 @@ import random
 import os
 import re
 from threading import Thread
+from auth import get_meeting_token, get_room_name
 
 from orchestrator import Orchestrator
 from scenes.story_intro_scene import StoryIntroScene
@@ -27,7 +28,11 @@ class DailyLLM(EventHandler):
 
         # room + bot details
         self.room_url = room_url
-        self.token = token
+        room_name = get_room_name(room_url)
+        if token:
+            self.token = token
+        else:
+            self.token = get_meeting_token(room_name, os.getenv("DAILY_API_KEY"))
         self.bot_name = bot_name
         self.image_style = image_style
         self.expiration = time.time() + int(os.getenv("BOT_MAX_DURATION") or 300)

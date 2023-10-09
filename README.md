@@ -20,12 +20,6 @@ This demo uses Daily's transcription (powered by deepgram.com) to convert your i
 
 Once you're signed up for Daily and Deepgram, you'll just need to set the [`enable transcription`](https://docs.daily.co/reference/rest-api/your-domain/config#enable_transcription) property on your domain.
 
-## Install the required Python libraries
-
-```
-pip3 install -r requirements.txt
-```
-
 ## Choose your cloud providers and update your `ENV` variables
 
 Copy `.env.example` to `.env` and include the appropriate keys for your chosen LLM, TTS, and image generation services. You can mix and match; the supported values for each are:
@@ -59,18 +53,24 @@ Also edit `read.example.html` with your correct `ALGOLIA_APP_ID` and `ALGOLIA_SE
 
 ## Update your `index.html` file
 
-Change the `DAILY_URL` and `DAILY_OWNER_TOKEN` in the `index.html` file.
-
-An owner token is necessary to use Daily's transcription service, which powers speech-to-text in this demo. You'll use our REST API to [create a token](https://docs.daily.co/reference/rest-api/meeting-tokens/create-meeting-token) that includes the parameter `is_owner: true`.
+Change the `DAILY_URL` and `DAILY_API_KEY` in the `index.html` file.
 
 # Running the demo
-
-- Open up the `index.html` file in your preferred browser; this contains the Daily Prebuilt call.
-- In your terminal, you can run the LLM and TTS like:
+- Run the Python server as follows:
 
 ```
-python3 daily-llm.py
+ pip3 install -r requirements.txt
+ flask --app daily-bot-manager.py run
 ```
+
+Then, run the client-side web app:
+```
+npm i
+npm run dev
+```
+
+Navigate to the web-app port shown in your terminal after the final command above. 
+The story bot should be automatically spun up and you can begin weaving your story.
 
 # More than just storytelling
 
