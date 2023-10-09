@@ -37,7 +37,6 @@ function init() {
  * @returns {DailyCall}
  */
 function createCallObject() {
-  console.log('creating call frame');
   const call = window.DailyIframe.createFrame({
     showLeaveButton: true,
     iframeStyle: {
@@ -90,7 +89,6 @@ function createCallObject() {
         );
       }
     });
-  console.log('call:', call);
   return call;
 }
 
