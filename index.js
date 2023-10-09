@@ -34,7 +34,7 @@ function init() {
 /**
  * Creates a Daily Prebuilt call frame and configures
  * relevant Daily event listeners.
- * @returns {*}
+ * @returns {DailyCall}
  */
 function createCallObject() {
   console.log('creating call frame');
