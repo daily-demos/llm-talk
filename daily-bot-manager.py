@@ -17,11 +17,12 @@ def spin_up_bot():
     api_path = os.getenv('DAILY_API_PATH') or 'https://api.daily.co/v1'
 
     timeout = int(os.getenv("BOT_MAX_DURATION") or 300)
+    exp = time.time() + timeout
     res = requests.post(f'{api_path}/rooms',
                         headers={'Authorization': f'Bearer {daily_api_key}'},
                         json={
                             'properties': {
-                                'exp': time.time() + timeout,
+                                'exp': exp,
                                 'enable_chat':True,
                                 'enable_emoji_reactions': True,
                                 'eject_at_room_exp': True,
@@ -33,7 +34,7 @@ def spin_up_bot():
     room_url = res.json()['url']
     room_name = res.json()['name']
 
-    meeting_token = get_meeting_token(room_name, daily_api_key)
+    meeting_token = get_meeting_token(room_name, daily_api_key, exp)
 
     # Run the LLM
     proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True)
