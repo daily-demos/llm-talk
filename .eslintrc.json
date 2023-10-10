@@ -3,6 +3,7 @@
     "browser": true,
     "es2021": true
   },
+  "ignorePatterns": ["/**/venv/**/*.js"],
   "extends": [
     "airbnb-base",
     "prettier"

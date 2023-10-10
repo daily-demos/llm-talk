@@ -66,10 +66,11 @@ npm run dev
 
 Navigate to the web-app port shown in your terminal after the final command above. It will automatically open a Daily call with the bot joined; you can interact with the bot on this page.
 
-- NOTE: By default the above command to launch flask will listen on `http://127.0.0.1:5000` and that path is specified in `interactive.html`; if, for some reason, your flask instance is listening on a different host or port, edit this line in the file:
+- NOTE: By default the above command to launch flask will listen on `http://127.0.0.1:5000` and that path is specified in `static-pages/index.js`; if, for some reason, your flask instance is listening on a different host or port, edit this line in the file:
 
 ```
-      xhttp.open("POST", "http://<your host and port>/spin-up-bot", true);
+        fetch('http://127.0.0.1:5000/spin-up-bot', {
+        //...
 ```
 
 # More than just storytelling

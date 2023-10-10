@@ -14,6 +14,7 @@ import config
 from orchestrator import Orchestrator
 from scenes.story_intro_scene import StoryIntroScene
 from scenes.start_listening_scene import StartListeningScene
+from auth import get_meeting_token, get_room_name
 
 load_dotenv()
 

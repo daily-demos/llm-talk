@@ -4,9 +4,9 @@
   "description": "## Overview",
   "main": "index.js",
   "scripts": {
-    "dev": "http-server -c-1 --cors='*'",
-    "lint": "eslint './*.js'",
-    "lintFix": "eslint './*.js' --fix"
+    "dev": "http-server 'static-pages/' -c-1 --cors='*' -o='interactive.html'",
+    "lint": "eslint './**/*.js'",
+    "lintFix": "eslint './**/*.js' --fix"
   },
   "author": "",
   "license": "ISC",
