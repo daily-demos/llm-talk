@@ -1,14 +1,15 @@
+import argparse
+import os
+import random
+import re
+import time
+from threading import Thread
+
 from daily import EventHandler, CallClient, Daily
+from datetime import datetime
+from dotenv import load_dotenv
 
 import config
-
-from dotenv import load_dotenv
-import argparse
-import time
-import random
-import os
-import re
-from threading import Thread
 
 from orchestrator import Orchestrator
 from scenes.story_intro_scene import StoryIntroScene
@@ -30,44 +31,69 @@ class DailyLLM(EventHandler):
         self.token = token
         self.bot_name = bot_name
         self.image_style = image_style
-        self.expiration = time.time() + int(os.getenv("BOT_MAX_DURATION") or 300)
+
+        duration = os.getenv("BOT_MAX_DURATION")
+        if not duration:
+            duration = 300
+        else:
+            duration = int(duration)
+        self.expiration = time.time() + duration
         self.story_started = False
         self.current_prompt = ''
 
-        self.expiration = time.time() + int(os.getenv("BOT_MAX_DURATION") or 60)
-
         self.finished_talking_at = None
 
-        print("Joining", self.room_url, "as", self.bot_name, "leaving at", self.expiration)
+
+        print(f"{room_url} Joining", self.room_url, "as", self.bot_name, "leaving at", self.expiration, "current time is", time.time())
+
+        self.print_debug(f"expiration: {datetime.utcfromtimestamp(self.expiration).strftime('%Y-%m-%d %H:%M:%S')}")
+        self.print_debug(f"now: {datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
 
         self.my_participant_id = None
 
+        self.print_debug("configuring services")
         self.configure_ai_services()
+        self.print_debug("configuring daily")
         self.configure_daily()
 
         self.stop_threads = False
         self.image = None
 
+        self.print_debug("starting camera thread")
         self.camera_thread = Thread(target=self.run_camera)
         self.camera_thread.start()
 
+        self.print_debug("starting orchestrator")
         self.orchestrator = Orchestrator(self, self.mic, self.tts, self.image_gen, self.llm, self.story_id)
         self.orchestrator.enqueue(StoryIntroScene)
         self.orchestrator.enqueue(StartListeningScene)
 
         self.participant_left = False
         self.transcription = ""
+        self.last_fragment_at = None
 
         try:
+            participant_count = len(self.client.participants())
+            self.print_debug(f"{participant_count} participants in room")
             while time.time() < self.expiration and not self.participant_left:
                 # all handling of incoming transcriptions happens in on_transcription_message
+                if self.last_fragment_at is not None and (time.time() > self.last_fragment_at + 5):
+                    # They probably stopped talking, but Deepgram didn't give us a complete sentence
+                    print(f"Sending transcript due to timeout: {self.transcription}")
+                    self.send_transcription()
                 time.sleep(1)
+        except Exception as e:
+            self.print_debug(f"Exception {e}")
         finally:
             self.client.leave()
 
         self.stop_threads = True
-        print("Shutting down")
+        self.print_debug("Shutting down")
         self.camera_thread.join()
+        self.print_debug("camera thread stopped")
+
+    def print_debug(self, s):
+        print(f"{self.room_url} {s}", flush=True)
 
     def configure_ai_services(self):
         self.story_id = hex(random.getrandbits(128))[2:]
@@ -89,8 +115,7 @@ class DailyLLM(EventHandler):
         Daily.select_speaker_device("speaker")
 
         self.client.set_user_name(self.bot_name)
-        self.client.join(self.room_url, self.token)
-        self.client.start_transcription()
+        self.client.join(self.room_url, self.token, completion=self.call_joined)
 
         self.client.update_inputs({
             "camera": {
@@ -109,19 +134,9 @@ class DailyLLM(EventHandler):
 
         self.my_participant_id = self.client.participants()['local']['id']
 
+    def call_joined(self, join_data, client_error):
+        self.print_debug(f"call_joined: {join_data}, {client_error}")
         self.client.start_transcription()
-
-
-    # If the person needs to keep talking, we'll wave at them
-    def check(self):
-        time.sleep(1)
-
-        if self.finished_talking_at is not None and self.finished_talking_at < time.time() - 15:
-            for _ in range(3):
-                self.wave()
-                time.sleep(0.5)
-
-            #self.tts.run_tts("You know what, I'm actually a little stumped. What do you think should happen next?")
 
     def on_participant_updated(self, participant):
         pass
@@ -142,6 +157,7 @@ class DailyLLM(EventHandler):
         pass
 
     def on_participant_joined(self, participant):
+        self.print_debug(f"on_participant_joined: {participant}")
         self.client.send_app_message({ "event": "story-id", "storyID": self.story_id})
         self.wave()
         time.sleep(2)
@@ -154,7 +170,13 @@ class DailyLLM(EventHandler):
 
     def on_participant_left(self, participant, reason):
         if len(self.client.participants()) < 2:
+            self.print_debug("participant left")
             self.participant_left = True
+
+    def send_transcription(self):
+        self.orchestrator.handle_user_speech(self.transcription)
+        self.transcription = ""
+        self.last_fragment_at = None
 
     def on_transcription_message(self, message):
         # TODO: This should maybe match on my own participant id instead but I'm in a hurry
@@ -165,20 +187,23 @@ class DailyLLM(EventHandler):
                 # Deepgram says we should look for ending punctuation
                 if re.search(r'[\.\!\?]$', self.transcription):
                     print(f"✏️ Sending reply: {self.transcription}")
-                    self.orchestrator.handle_user_speech(self.transcription)
-                    self.transcription = ""
+                    self.send_transcription()
                 else:
                     print(f"✏️ Got a transcription fragment: \"{self.transcription}\"")
+                    self.last_fragment_at = time.time()
 
-        
+
     def set_image(self, image):
         self.image = image
 
     def run_camera(self):
-        while not self.stop_threads:
-            if self.image:
-                self.camera.write_frame(self.image.tobytes())
-            time.sleep(1.0 / 15.0) # 15 fps
+        try:
+            while not self.stop_threads:
+                if self.image:
+                    self.camera.write_frame(self.image.tobytes())
+                time.sleep(1.0 / 15.0) # 15 fps
+        except Exception as e:
+            self.print_debug(f"Exception {e} in camera thread.")
 
     def wave(self):
         self.client.send_app_message({

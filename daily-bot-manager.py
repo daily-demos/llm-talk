@@ -2,6 +2,7 @@ import os
 import requests
 import subprocess
 import time
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -39,9 +40,11 @@ def spin_up_bot():
         return jsonify({'error': 'Unable to create meeting token', 'detail': res.text}), 500
     meeting_token = res.json()['token']
 
-    proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True)
+    proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True, bufsize=1)
     running_bots.append([proc.pid, room_url, meeting_token])
+
     return jsonify({'room_url': room_url, 'token': meeting_token}), 200
+
 
 @app.route('/bots', methods=['GET'])
 def get_bots():

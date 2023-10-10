@@ -1,3 +1,4 @@
+import json
 import io
 import random
 import re
@@ -39,7 +40,7 @@ class Orchestrator():
         self.scene_queue = Queue()
         self.stop_threads = False
         self.started_listening_at = None
-        self.image_this_time = False
+        self.image_this_time = True
 
 
 
@@ -62,9 +63,12 @@ class Orchestrator():
         return self.started_listening_at
 
     def request_llm_response(self, user_speech):
-        self.messages.append({"role": "user", "content": user_speech})
-        response = self.ai_llm_service.run_llm(self.messages)
-        self.handle_llm_response(response)
+        try:
+            self.messages.append({"role": "user", "content": user_speech})
+            response = self.ai_llm_service.run_llm(self.messages)
+            self.handle_llm_response(response)
+        except Exception as e:
+            print(f"Exception in request_llm_response: {e}")
 
     def request_intro(self):
         response = self.ai_llm_service.run_llm(self.intro_messages)
@@ -115,6 +119,7 @@ class Orchestrator():
                             out = out.replace("\n", " ")
                             if len(out) > 2:
                                 self.enqueue(StoryPageAsyncScene, sentence=out, image=self.image_this_time)
+
                                 self.image_this_time = not self.image_this_time
 
                             out = ''
@@ -159,14 +164,21 @@ class Orchestrator():
         self.image_getter.join()
 
     def request_tts(self, text):
-        audio = self.ai_tts_service.run_tts(text)
-        return audio
-        #if audio:
-            #self.handle_audio(audio)
+        try:
+            audio = self.ai_tts_service.run_tts(text)
+            return audio
+            #if audio:
+                #self.handle_audio(audio)
+        except Exception as e:
+            print(f"Exception in request_tts: {e}")
 
     def request_image(self, text):
-        (url, image) = self.ai_image_gen_service.run_image_gen(text)
-        return self.handle_image(text, url, image)
+        try:
+            (url, image) = self.ai_image_gen_service.run_image_gen(text)
+            self.handle_image(text, url, image)
+            return (url, image)
+        except Exception as e:
+            print(f"Exception in request_image: {e}")
 
     def handle_audio(self, audio):
         print("🏙️ orchestrator handle audio")
@@ -177,10 +189,6 @@ class Orchestrator():
         self.microphone.write_frames(stream.read())
 
     def handle_image(self, text, url, image):
-        if self.search_indexer:
-            self.search_indexer.index_text(text)
-            self.search_indexer.index_image(url)
-
         return image
 
     def display_image(self, image):
@@ -199,6 +207,18 @@ class Orchestrator():
         self.playback_thread = Thread(target=self.playback)
         self.playback_thread.start()
 
+    def index_scene_async(self, scene):
+        self.search_indexer.index_text(scene.sentence)
+        if 'url' in scene.scene_data:
+            self.search_indexer.index_image(scene.scene_data['url'])
+
+    def index_scene(self, scene):
+        if 'sentence' in scene.__dict__:
+            thread = Thread(target=self.index_scene_async, args=(scene,))
+            thread.start()
+            # we let this thread run unattended
+
+
     def playback(self):
         while True:
             try:
@@ -206,13 +226,15 @@ class Orchestrator():
                     print("🎬 Shutting down playback thread")
                     break
                 scene = self.scene_queue.get(block=False)
-                print(f"🎬 Performing scene: {type(scene).__name__}")
+                if 'sentence' in scene.__dict__:
+                    print(f"🎬 Performing scene: {type(scene).__name__}, {scene.sentence}")
+                else:
+                    print(f"🎬 Performing sentenceless scene: {type(scene).__name__}")
                 scene.perform()
                 time.sleep(0)
             except Empty:
                 time.sleep(0.1)
                 continue
-
 
 
 if __name__ == "__main__":

@@ -1,0 +1,130 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+</head>
+
+<body>
+  <script>
+    window.sendText = function (str) {
+      call.sendAppMessage({
+        event: "transcription-ready",
+        text: str,
+      });
+    };
+
+    const readStory = function () {
+      window.location.href = `read.html?storyID=${window.storyID}`;
+    }
+
+    const joinRoom = async function (room_url, token) {
+      call.on("joined-meeting", function () {
+        // watchdog timer in case the bot never joins
+        setTimeout(async function () {
+          const pax = await call.participants();
+          console.log({ pax });
+          if (Object.keys(pax).length == 1) {
+            window.alert(
+              "Sorry! It looks like all of our bots are busy right now. Please use your browser's Back button to go back to the previous page, and click the button to try again."
+            );
+          }
+        }, 10 * 1000);
+      });
+
+      await call.join({
+        url: room_url,
+        token: token,
+      });
+      call.on("transcription-started", (e) =>
+        console.log("transcription started")
+      );
+
+      call.startTranscription();
+
+      call.on("left-meeting", function () {
+        readStory(window.storyID);
+      });
+
+      call.on("app-message", (msg) => {
+        // if it's a transcription chunk of the current user's audio
+        console.log("🎙️ app message received", msg);
+        if (msg.fromId === "transcription") {
+          call.sendAppMessage({
+            event: "transcription-ready",
+            text: msg.data.text,
+          });
+        }
+
+        if (msg.data.event == "story-id") {
+          // redirect to the story page in 10 minutes
+          window.storyID = msg.data.storyID;
+
+          setTimeout(function () {
+            readStory(window.storyID);
+          }, 1000 * 60 * 10);
+        }
+      });
+    }
+
+    const init = async function () {
+      let currentTranscription = "";
+
+      call = window.DailyIframe.createFrame({
+        showLeaveButton: true,
+        startVideoOff: true,
+        iframeStyle: {
+          position: "fixed",
+          top: "0",
+          left: "0",
+          width: "100%",
+          height: "100%",
+          border: 0,
+        },
+      });
+      window.call = call;
+
+      var xhttp = new XMLHttpRequest();
+
+      xhttp.onreadystatechange = async function () {
+        if (this.readyState == 4 && this.status == 200) {
+          let response = JSON.parse(xhttp.responseText);
+          console.log(response["room_url"], response["token"]);
+          setTimeout(async () => {
+            joinRoom(response["room_url"], response["token"])
+          }, 500)
+        }
+      };
+
+      // Below are various URLs to access the bot manager depending on how you're running it.
+      // Uncomment the correct one to access your instance.
+      /*
+      // This is the "production" URL (hosted by Daily), you can substitute your own prod url here.
+      xhttp.open(
+        "POST",
+        "https://api.storybot-demos.daily-video.co/spin-up-bot",
+        true
+      );
+      */
+      /*
+      // This is the URL the bot manager will typically expose if you use `docker run`
+      xhttp.open(
+        "POST",
+        "http://0.0.0.0:8000/spin-up-bot",
+        true
+      );
+      */
+      // This is the URL the bot manager will typically expose if you use `flask --app daily-bot-manager.py run` 
+      xhttp.open(
+        "POST",
+        "http://127.0.0.1:5000/spin-up-bot",
+        true
+      );
+      xhttp.send();
+    };
+
+    init();
+  </script>
+</body>
+
+</html>
