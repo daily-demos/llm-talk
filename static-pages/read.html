@@ -42,6 +42,7 @@
                     src="https://www.daily.co/wp-content/uploads/2023/08/Daily-logo-orange-black.svg"
             /></a>
         </header>
+        <div id="error"></div>
         <div id="chunks"></div>
 
         <script>
@@ -70,7 +71,12 @@
 
                     document.getElementById('chunks').innerHTML =
                         chunks.join('');
-                });
+                })
+                .catch((e) => {
+                    console.error("failed to search:", e);
+                    document.getElementById("error").innerText = "To read your story, configure Algolia."
+                    throw e;
+                })
         </script>
     </body>
 </html>

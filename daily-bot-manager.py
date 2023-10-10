@@ -3,8 +3,9 @@ import requests
 import subprocess
 import time
 
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
+from auth import get_meeting_token
 
 running_bots = []
 
@@ -17,11 +18,12 @@ def spin_up_bot():
     api_path = os.getenv('DAILY_API_PATH') or 'https://api.daily.co/v1'
 
     timeout = int(os.getenv("BOT_MAX_DURATION") or 300)
+    exp = time.time() + timeout
     res = requests.post(f'{api_path}/rooms',
                         headers={'Authorization': f'Bearer {daily_api_key}'},
                         json={
                             'properties': {
-                                'exp': time.time() + timeout,
+                                'exp': exp,
                                 'enable_chat':True,
                                 'enable_emoji_reactions': True,
                                 'eject_at_room_exp': True,
@@ -33,12 +35,7 @@ def spin_up_bot():
     room_url = res.json()['url']
     room_name = res.json()['name']
 
-    res = requests.post(f'{api_path}/meeting-tokens',
-                        headers={'Authorization': f'Bearer {daily_api_key}'},
-                        json={'properties': {'room_name': room_name, 'is_owner': True}})
-    if res.status_code != 200:
-        return jsonify({'error': 'Unable to create meeting token', 'detail': res.text}), 500
-    meeting_token = res.json()['token']
+    meeting_token = get_meeting_token(room_name, daily_api_key, exp)
 
     proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True, bufsize=1)
     running_bots.append([proc.pid, room_url, meeting_token])

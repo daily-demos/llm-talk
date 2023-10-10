@@ -20,12 +20,6 @@ This demo uses Daily's transcription (powered by deepgram.com) to convert your i
 
 Once you're signed up for Daily and Deepgram, you'll just need to set the [`enable transcription`](https://docs.daily.co/reference/rest-api/your-domain/config#enable_transcription) property on your domain.
 
-## Install the required Python libraries
-
-```
-pip3 install -r requirements.txt
-```
-
 ## Choose your cloud providers and update your `ENV` variables
 
 Copy `.env.example` to `.env` and include the appropriate keys for your chosen LLM, TTS, and image generation services. You can mix and match; the supported values for each are:
@@ -64,12 +58,20 @@ Also edit `read.example.html` with your correct `ALGOLIA_APP_ID` and `ALGOLIA_SE
 flask --app daily-bot-manager.py --debug run
 ```
 
-- Open `static-pages/interactive.html`. This is the page that requests a room and meeting token from the bot manager. It will automatically open a Daily call with the bot joined; you can interact with the bot on this page.
-
-- NOTE: By default the above command to launch flask will listen on `http://127.0.0.1:5000` and that path is specified in `interactive.html`; if, for some reason, your flask instance is listening on a different host or port, edit this line in the file:
+Then, either open `static-pages/interactive.html` in your browser of choice or spin up an HTTP server and navigate
+to the port shown in your terminal:
 
 ```
-      xhttp.open("POST", "http://<your host and port>/spin-up-bot", true);
+ python -m http.server --directory static-pages
+```
+
+The above should open your default browser. If your browser does not open automatically, navigate to the web-app port shown in your terminal after the final command above. Once there, the application will automatically open a Daily call with the bot joined; you can interact with the bot on this page.
+
+- NOTE: By default the above command to launch flask will listen on `http://127.0.0.1:5000` and that path is specified in `static-pages/index.js`; if, for some reason, your flask instance is listening on a different host or port, edit this line in the file:
+
+```
+        fetch('http://127.0.0.1:5000/spin-up-bot', {
+        //...
 ```
 
 # More than just storytelling

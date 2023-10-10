@@ -14,6 +14,7 @@ import config
 from orchestrator import Orchestrator
 from scenes.story_intro_scene import StoryIntroScene
 from scenes.start_listening_scene import StartListeningScene
+from auth import get_meeting_token, get_room_name
 
 load_dotenv()
 
@@ -28,7 +29,11 @@ class DailyLLM(EventHandler):
 
         # room + bot details
         self.room_url = room_url
-        self.token = token
+        room_name = get_room_name(room_url)
+        if token:
+            self.token = token
+        else:
+            self.token = get_meeting_token(room_name, os.getenv("DAILY_API_KEY"))
         self.bot_name = bot_name
         self.image_style = image_style
 
