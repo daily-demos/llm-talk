@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Read Daily LLM's Story</title>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/algoliasearch@4.20.0/dist/algoliasearch-lite.umd.js"
+            integrity="sha256-DABVk+hYj0mdUzo+7ViJC6cwLahQIejFvC+my2M/wfM="
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.57.0/dist/instantsearch.production.min.js"
+            integrity="sha256-foJtB+Wd0wvvK+VU3KO0/H6CjwSwJfB1RnWlgx0Ov9U="
+            crossorigin="anonymous"
+        ></script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Grandiflora+One&display=swap');
+            body {
+                font-family: 'Grandiflora One', serif;
+                font-size: 2.4em;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            .text {
+                padding: 0 1em;
+            }
+
+            header {
+                display: flex;
+                justify-content: center;
+                padding: 1em;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a href="https://daily.co" alt="WebRTC video API and SDKs"
+                ><img
+                    src="https://www.daily.co/wp-content/uploads/2023/08/Daily-logo-orange-black.svg"
+            /></a>
+        </header>
+        <div id="error"></div>
+        <div id="chunks"></div>
+
+        <script>
+            const client = algoliasearch(
+                'ALGOLIA_APP_ID',
+                'ALGOLIA_SEARCH_KEY'
+            );
+
+            const index = client.initIndex('daily-llm-conversations');
+            const storyID = new URL(location.href).searchParams.get('storyID');
+
+            index
+                .search('', {
+                    filters: `storyID:${storyID}`,
+                })
+                .then(({ hits }) => {
+                    const chunks = hits.map((hit) => {
+                        if (hit.type === 'text') {
+                            return `<p class="text">${hit.text}</p>`;
+                        }
+
+                        if (hit.type === 'image') {
+                            return `<img class="image" src="${hit.image}" />`;
+                        }
+                    });
+
+                    document.getElementById('chunks').innerHTML =
+                        chunks.join('');
+                })
+                .catch((e) => {
+                    console.error("failed to search:", e);
+                    document.getElementById("error").innerText = "To read your story, configure Algolia."
+                    throw e;
+                })
+        </script>
+    </body>
+</html>
