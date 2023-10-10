@@ -167,15 +167,12 @@ class Orchestrator():
         try:
             audio = self.ai_tts_service.run_tts(text)
             return audio
-            #if audio:
-                #self.handle_audio(audio)
         except Exception as e:
             print(f"Exception in request_tts: {e}")
 
     def request_image(self, text):
         try:
             (url, image) = self.ai_image_gen_service.run_image_gen(text)
-            self.handle_image(text, url, image)
             return (url, image)
         except Exception as e:
             print(f"Exception in request_image: {e}")
@@ -187,9 +184,6 @@ class Orchestrator():
         # Skip RIFF header
         stream.read(44)
         self.microphone.write_frames(stream.read())
-
-    def handle_image(self, text, url, image):
-        return image
 
     def display_image(self, image):
         if self.image_setter:
@@ -217,7 +211,6 @@ class Orchestrator():
             thread = Thread(target=self.index_scene_async, args=(scene,))
             thread.start()
             # we let this thread run unattended
-
 
     def playback(self):
         while True:

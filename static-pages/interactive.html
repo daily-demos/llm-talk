@@ -36,11 +36,6 @@
         url: room_url,
         token: token,
       });
-      call.on("transcription-started", (e) =>
-        console.log("transcription started")
-      );
-
-      call.startTranscription();
 
       call.on("left-meeting", function () {
         readStory(window.storyID);
@@ -96,25 +91,7 @@
         }
       };
 
-      // Below are various URLs to access the bot manager depending on how you're running it.
-      // Uncomment the correct one to access your instance.
-      /*
-      // This is the "production" URL (hosted by Daily), you can substitute your own prod url here.
-      xhttp.open(
-        "POST",
-        "https://api.storybot-demos.daily-video.co/spin-up-bot",
-        true
-      );
-      */
-      /*
-      // This is the URL the bot manager will typically expose if you use `docker run`
-      xhttp.open(
-        "POST",
-        "http://0.0.0.0:8000/spin-up-bot",
-        true
-      );
-      */
-      // This is the URL the bot manager will typically expose if you use `flask --app daily-bot-manager.py run` 
+      // This is the URL the bot manager will typically expose if you use `flask --app daily-bot-manager.py run`
       xhttp.open(
         "POST",
         "http://127.0.0.1:5000/spin-up-bot",
