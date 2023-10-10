@@ -29,10 +29,12 @@ ENV SSL_CERT_DIR=/etc/ssl/certs
 
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 RUN apt-get update
-RUN apt-get install build-essential libssl-dev ca-certificates libasound2 wget
+RUN apt-get -y install build-essential libssl-dev ca-certificates libasound2 wget
+
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
 
 # run
-CMD ["gunicorn", "--workers=2", "daily-bot-manager:app", "--bind=0.0.0.0:8000"]
+CMD ["gunicorn", "--workers=2", "--log-level", "debug", "--capture-output", "daily-bot-manager:app", "--bind=0.0.0.0:8000"]

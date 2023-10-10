@@ -11,15 +11,22 @@ class StoryPageAsyncScene(Scene):
 		super().__init__(**kwargs)
 
 	def fetch_audio(self):
-		self.scene_data['audio'] = self.orchestrator.request_tts(self.sentence)
-		print(f"🌆 fetch audio complete for {self.sentence}")
+		try:
+			self.scene_data['audio'] = self.orchestrator.request_tts(self.sentence)
+			print(f"🌆 fetch audio complete for {self.sentence}")
+		except Exception as e:
+			print(f"Exception in fetch_audio {e}")
 
 	def fetch_image(self):
-		if self.image:
-			self.scene_data['image'] = self.orchestrator.request_image(self.sentence)
-			print(f"🌆 fetch image complete for {self.sentence}")
-		else:
-			print(f"🌆 Skipping image for {self.sentence}")
+		try:
+			if self.image:
+				(url, image) = self.orchestrator.request_image(self.sentence)
+				(self.scene_data['url'], self.scene_data['image']) = (url, image)
+				print(f"🌆 fetch image complete for {self.sentence}")
+			else:
+				print(f"🌆 Skipping image for {self.sentence}")
+		except Exception as e:
+			print(f"Exception in fetch_image {e}")
 
 
 	def prepare(self):
@@ -39,3 +46,4 @@ class StoryPageAsyncScene(Scene):
 	def perform(self):
 		print(f"🌆 StoryPageScene perform sentence: {self.sentence}")
 		super().perform()
+		self.orchestrator.index_scene(self)

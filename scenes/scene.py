@@ -9,15 +9,18 @@ class Scene:
 		# handle all the threading and data storage for you.
 		# Your prepare and perform methods can pass data through
 		# the scene_data dictionary
-		
+
 		# each subclass should use its prepare method to prep
 		# an audio thread and image thread. You can join either
 		# of those threads in the prepare method to block
 		# starting this scene until they're ready, and/or join
 		# them in the perform method before you call super().perform()
-		# or just leave it alone to do one or both async 
+		# or just leave it alone to do one or both async
 		self.orchestrator = kwargs.get('orchestrator', None)
-		self.scene_data = {}
+		self.scene_data = {}		
+		self.image_thread = None
+		self.audio_thread = None
+		
 		# everybody needs a grandma now and then
 		script_dir = os.path.dirname(__file__)
 		listening_path = "../grandma-listening.png"
@@ -29,29 +32,33 @@ class Scene:
 
 		self.prepare_thread = threading.Thread(target=self.prepare)
 		self.prepare_thread.start()
-		
-		self.image_thread = None
-		self.audio_thread = None
+
 		pass
 
 	# Speak the sentence. Returns None
 	@abstractmethod
 	def prepare(self):
 		pass
-		
+
 	def play_image(self):
-		if self.image_thread:
-			self.image_thread.join()
-		if self.scene_data.get('image', None):
-			print("🖼️ setting image")
-			self.orchestrator.display_image(self.scene_data['image'])
-		
+		try:
+			if self.image_thread:
+				self.image_thread.join()
+			if self.scene_data.get('image', None):
+				print("🖼️ setting image")
+				self.orchestrator.display_image(self.scene_data['image'])
+		except Exception as e:
+			print(f"Exception in play_image: {e}")
+
 	def play_audio(self):
-		if self.audio_thread:
-			self.audio_thread.join()
-		if self.scene_data.get('audio', None):
-			print("🖼️ playing audio")
-			self.orchestrator.handle_audio(self.scene_data['audio'])
+		try:
+			if self.audio_thread:
+				self.audio_thread.join()
+			if self.scene_data.get('audio', None):
+				print("🖼️ playing audio")
+				self.orchestrator.handle_audio(self.scene_data['audio'])
+		except Exception as e:
+			print(f"Exception in play_audio: {e}")
 
 	def perform(self):
 		self.prepare_thread.join()
