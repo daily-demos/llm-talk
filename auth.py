@@ -1,4 +1,5 @@
 import time
+import urllib
 
 from dotenv import load_dotenv
 import requests
@@ -22,4 +23,4 @@ def get_meeting_token(room_name, daily_api_key, token_expiry):
 
 
 def get_room_name(room_url):
-    return room_url.rsplit('/', 1)[-1]
+    return urllib.parse.urlparse(room_url).path[1:]

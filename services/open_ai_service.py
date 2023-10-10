@@ -41,6 +41,7 @@ class OpenAIService(AIService):
         image_url = image["data"][0]["url"]
         print("🖌️ generated image from url", image["data"][0]["url"])
         response = requests.get(image_url)
+        print("🖌️ got image from url", response)
         dalle_stream = io.BytesIO(response.content)
         dalle_im = Image.open(dalle_stream)
         return (image_url, dalle_im)

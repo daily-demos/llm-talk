@@ -7,6 +7,8 @@ window.addEventListener('DOMContentLoaded', () => {
  * then joins a call through Daily Prebuilt
  */
 function init() {
+  // This is the default port when running the `daily-bot-manager.py` Flask app.
+  // If your bot manager is running on a different port, modify it below.
   fetch('http://127.0.0.1:5000/spin-up-bot', {
     method: 'POST',
   })

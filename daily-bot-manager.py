@@ -3,9 +3,9 @@ import requests
 import subprocess
 import time
 
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
-from auth import get_meeting_token, get_room_name
+from auth import get_meeting_token
 
 running_bots = []
 
