@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.slim.js"
+      integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc="
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.6.1/jquery.lettering.min.js"
+      integrity="sha512-VJ/iYbiu1eJ6yLimfTi65t2R9TFcG5D9X8ZCfbbEFhTfPnKJh8byoKXEawi5ScJZBYL1eiirL1+MczZDx0Tz9Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <script src="
+https://cdn.jsdelivr.net/npm/textillate@0.4.1/jquery.textillate.min.js
+"></script>
+    <link
+      href="
+https://cdn.jsdelivr.net/npm/textillate@0.4.1/assets/animate.min.css
+"
+      rel="stylesheet"
+    />
+  </head>
+
+  <div class="flex">
+    <h1 class="tlt">
+      <ul class="texts">
+        <li>Just tell the AI your story idea.</li>
+        <li>Here's a few examples...</li>
+        <li>"A unicorn island...in the sky"</li>
+        <li>"A cobbler's favorite cobbler"</li>
+        <li>"Three elves go dirtbiking"</li>
+        <li>When you're done, you can read your story!</li>
+      </ul>
+    </h1>
+
+    <button>Got it. Let's make a story! 🙌</button>
+
+    <footer>
+      <p>
+        This is a demo showing how to build voice-driven and speech-to-speech AI
+        apps. It is built on top of
+        <a href="https://github.com/daily-co/daily-python">daily-python</a>,
+        <a href="https://deepgram.com">Deepgram</a> real-time transcription,
+        <a
+          href="https://azure.microsoft.com/en-us/blog/introducing-gpt4-in-azure-openai-service/"
+          >Azure OpenAI GPT-4</a
+        >,
+        <a
+          href="https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart?tabs=command-line&pivots=programming-language-studio"
+          >Azure OpenAI DALL-E</a
+        >, and
+        <a
+          href="https://azure.microsoft.com/en-us/products/ai-services/ai-speech"
+          >Azure AI Speech</a
+        >.
+      </p>
+
+      <p>
+        <a
+          href="https://www.daily.co/blog/how-to-talk-to-an-llm-with-your-voice"
+          >Read the blog post</a
+        >
+        |
+        <a href="https://github.com/daily-demos/llm-talk">llm-talk on Github</a>
+      </p>
+    </footer>
+  </div>
+
+  <video
+    class="object-cover w-full md:h-866 mix-blend-lighten"
+    autoplay=""
+    playsinline=""
+    loop=""
+    muted=""
+    width="100%"
+    height="100%"
+  >
+    <source
+      src="https://www.daily.co/wp-content/uploads/2023/08/global-mesh-square.mp4"
+      type="video/mp4"
+    />
+  </video>
+
+  <style>
+    html {
+      background: #161618;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    .flex {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      color: white;
+      font-size: 6vw;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    button {
+      background-color: white;
+      border-radius: 2em;
+      border: 0;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      padding: 1em 2em;
+    }
+
+    video {
+      position: fixed;
+      top: 0;
+      mix-blend-mode: lighten;
+      z-index: -1;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1em;
+      text-align: center;
+      color: white;
+    }
+
+    footer a {
+      color: white;
+    }
+  </style>
+
+  <script>
+    $(function () {
+      $(".tlt").textillate({
+        minDisplayTime: 1000,
+        in: { effect: "fadeInRight", delay: 20 },
+        out: { effect: "fadeOutLeft", delay: 20 },
+      });
+
+      $("button").on("click", () => {
+        window.location.href = "/interactive.html";
+      });
+    });
+  </script>
+</html>

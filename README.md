@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project lets you talk to an AI participant in a Daily call. The AI participant will tell you a story based on suggestions you make.
+This project lets you talk to an AI participant in a Daily call. The AI participant will talk to you just like anybody else on the call, and you can configure their behavior based on your use case.
 
 ## Key ingredients
 
@@ -51,16 +51,11 @@ Also edit `read.example.html` with your correct `ALGOLIA_APP_ID` and `ALGOLIA_SE
 
 > Two additional AI service connectors -- Hugging Face and Cloudflare -- are also included but not currently recommended for production use.
 
-## Update your `index.html` file
-
-Change the `DAILY_URL` and `DAILY_API_KEY` in the `index.html` file.
-
 # Running the demo
-- Run the Python server as follows:
 
+- Start up the bot manager. This module creates rooms and meeting tokens used by bots and by the interactive.html script. The `--debug` flag is optional below, but gives you the ability to dynamically reload your python modules if they change.
 ```
- pip3 install -r requirements.txt
- flask --app daily-bot-manager.py run
+flask --app daily-bot-manager.py --debug run
 ```
 
 Then, run the client-side web app:
@@ -69,8 +64,13 @@ npm i
 npm run dev
 ```
 
-Navigate to the web-app port shown in your terminal after the final command above. 
-The story bot should be automatically spun up and you can begin weaving your story.
+Navigate to the web-app port shown in your terminal after the final command above. It will automatically open a Daily call with the bot joined; you can interact with the bot on this page.
+
+- NOTE: By default the above command to launch flask will listen on `http://127.0.0.1:5000` and that path is specified in `interactive.html`; if, for some reason, your flask instance is listening on a different host or port, edit this line in the file:
+
+```
+      xhttp.open("POST", "http://<your host and port>/spin-up-bot", true);
+```
 
 # More than just storytelling
 

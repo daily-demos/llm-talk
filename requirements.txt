@@ -7,6 +7,9 @@ python-dotenv
 google-cloud-texttospeech
 azure-cognitiveservices-speech
 algoliasearch
-Flask
-flask_cors
+gunicorn
+flask
+flask-cors
 transformers
+sentencepiece
+algoliasearch

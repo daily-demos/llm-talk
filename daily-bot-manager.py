@@ -2,6 +2,7 @@ import os
 import requests
 import subprocess
 import time
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from auth import get_meeting_token, get_room_name
@@ -36,10 +37,11 @@ def spin_up_bot():
 
     meeting_token = get_meeting_token(room_name, daily_api_key, exp)
 
-    # Run the LLM
-    proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True)
+    proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True, bufsize=1)
     running_bots.append([proc.pid, room_url, meeting_token])
+
     return jsonify({'room_url': room_url, 'token': meeting_token}), 200
+
 
 @app.route('/bots', methods=['GET'])
 def get_bots():
