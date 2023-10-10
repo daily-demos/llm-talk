@@ -58,10 +58,11 @@ Also edit `read.example.html` with your correct `ALGOLIA_APP_ID` and `ALGOLIA_SE
 flask --app daily-bot-manager.py --debug run
 ```
 
-Then, run the client-side web app:
+Then, either open `static-pages/interactive.html` in your browser of choice or spin up an HTTP server and navigate
+to the port shown in your terminal:
+
 ```
-npm i
-npm run dev
+ python -m http.server --directory static-pages
 ```
 
 The above should open your default browser. If your browser does not open automatically, navigate to the web-app port shown in your terminal after the final command above. Once there, the application will automatically open a Daily call with the bot joined; you can interact with the bot on this page.

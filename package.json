@@ -4,7 +4,6 @@
   "description": "## Overview",
   "main": "index.js",
   "scripts": {
-    "dev": "http-server 'static-pages/' -c-1 --cors='*' -o='interactive.html'",
     "lint": "eslint './**/*.js'",
     "lintFix": "eslint './**/*.js' --fix"
   },
