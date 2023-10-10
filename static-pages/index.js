@@ -51,7 +51,6 @@ function createCallObject() {
 
   call
     .on('joined-meeting', () => {
-      call.startTranscription();
       // watchdog timer in case the bot never joins
       setTimeout(async () => {
         const pax = call.participants();
