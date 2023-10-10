@@ -64,7 +64,7 @@ npm i
 npm run dev
 ```
 
-Navigate to the web-app port shown in your terminal after the final command above. It will automatically open a Daily call with the bot joined; you can interact with the bot on this page.
+The above should open your default browser. If your browser does not open automatically, navigate to the web-app port shown in your terminal after the final command above. Once there, the application will automatically open a Daily call with the bot joined; you can interact with the bot on this page.
 
 - NOTE: By default the above command to launch flask will listen on `http://127.0.0.1:5000` and that path is specified in `static-pages/index.js`; if, for some reason, your flask instance is listening on a different host or port, edit this line in the file:
 
