@@ -41,6 +41,7 @@ class Orchestrator():
         self.stop_threads = False
         self.started_listening_at = None
         self.image_this_time = True
+        self.story_sentences = []
 
 
 
@@ -118,7 +119,8 @@ class Orchestrator():
                             out = out.replace("[break]", "")
                             out = out.replace("\n", " ")
                             if len(out) > 2:
-                                self.enqueue(StoryPageAsyncScene, sentence=out, image=self.image_this_time)
+                                self.story_sentences.append(out)
+                                self.enqueue(StoryPageAsyncScene, sentence=out, image=self.image_this_time, story_sentences=self.story_sentences.copy())
 
                                 self.image_this_time = not self.image_this_time
 
@@ -134,7 +136,8 @@ class Orchestrator():
 
                             out = out.replace("\n", " ")
                             if len(out) > 2:
-                                self.enqueue(StoryPageAsyncScene, sentence=out, image=self.image_this_time)
+                                self.story_sentences.append(out)
+                                self.enqueue(StoryPageAsyncScene, sentence=out, image=self.image_this_time, story_sentences=self.story_sentences.copy())
                                 self.image_this_time =  not self.image_this_time
 
                             out = ''
@@ -176,6 +179,24 @@ class Orchestrator():
             return (url, image)
         except Exception as e:
             print(f"Exception in request_image: {e}")
+    
+    def request_image_description(self, story_sentences):
+        if len(self.story_sentences) == 1:
+            prompt = f"You are an illustrator for a children's story book. Generate a prompt for DALL-E to create an illustration for the first page of the book, which reads: \"{self.story_sentences[0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
+        else:
+            prompt = f"You are an illustrator for a children's story book. Here is the story so far:\n\n\"{' '.join(self.story_sentences[:-1])}\"\n\nGenerate a prompt for DALL-E to create an illustration for the next page. Here's the sentence for the next page:\n\n\"{self.story_sentences[-1:][0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
+        
+        #prompt += " Children's story book illustration"
+        print(f"🎆 Prompt: {prompt}")
+        msgs = [{"role": "system", "content": prompt}]
+        img_response = self.ai_llm_service.run_llm(msgs, stream = False)
+        image_prompt = img_response['choices'][0]['message']['content']
+        # It comes back wrapped in quotes for some reason
+        image_prompt = re.sub(r'^"', '', image_prompt)
+        image_prompt = re.sub(r'"$', '', image_prompt)
+        print(f"🎆 Resulting image prompt: {image_prompt}")
+        return image_prompt
+            
 
     def handle_audio(self, audio):
         print("🏙️ orchestrator handle audio")
