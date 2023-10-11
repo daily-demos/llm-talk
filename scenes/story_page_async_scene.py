@@ -8,6 +8,7 @@ class StoryPageAsyncScene(Scene):
 		print("StoryPageScene init")
 		self.sentence = kwargs.get('sentence', None)
 		self.image = kwargs.get('image', False)
+		self.story_sentences = kwargs.get('story_sentences', None)
 		super().__init__(**kwargs)
 
 	def fetch_audio(self):
@@ -20,7 +21,9 @@ class StoryPageAsyncScene(Scene):
 	def fetch_image(self):
 		try:
 			if self.image:
-				(url, image) = self.orchestrator.request_image(self.sentence)
+				desc = self.orchestrator.request_image_description(self.story_sentences)
+				
+				(url, image) = self.orchestrator.request_image(desc)
 				(self.scene_data['url'], self.scene_data['image']) = (url, image)
 				print(f"🌆 fetch image complete for {self.sentence}")
 			else:

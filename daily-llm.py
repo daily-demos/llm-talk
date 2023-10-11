@@ -44,7 +44,6 @@ class DailyLLM(EventHandler):
             duration = int(duration)
         self.expiration = time.time() + duration
         self.story_started = False
-        self.current_prompt = ''
 
         self.finished_talking_at = None
 

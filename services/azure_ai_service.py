@@ -42,7 +42,7 @@ class AzureAIService(AIService):
                 print("Error details: {}".format(cancellation_details.error_details))
 
     # generate a chat using Azure OpenAI based on the participant's most recent speech
-    def run_llm(self, messages):
+    def run_llm(self, messages, stream = True):
         print("generating chat")
 
         response = openai.ChatCompletion.create(
@@ -51,7 +51,7 @@ class AzureAIService(AIService):
             api_key = os.getenv("AZURE_CHATGPT_KEY"),
             api_base = os.getenv("AZURE_CHATGPT_ENDPOINT"),
             deployment_id=os.getenv("AZURE_CHATGPT_DEPLOYMENT_ID"),
-            stream=True,
+            stream=stream,
             messages=messages
         )
         return response

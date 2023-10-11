@@ -10,7 +10,7 @@ class OpenAIService(AIService):
         # we handle all the api config directly in the calls below
         pass
 
-    def run_llm(self, messages):
+    def run_llm(self, messages, stream = True):
         model = os.getenv("OPEN_AI_MODEL")
         if not model:
             model = "gpt-4"
@@ -20,7 +20,7 @@ class OpenAIService(AIService):
             api_base = "https://api.openai.com/v1",
             api_key = os.getenv("OPEN_AI_KEY"),
             model=model,
-            stream=True,
+            stream=stream,
             messages=messages
         )
 
