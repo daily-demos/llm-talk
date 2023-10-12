@@ -7,8 +7,6 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from auth import get_meeting_token
 
-running_bots = []
-
 app = Flask(__name__)
 CORS(app)
 
@@ -38,11 +36,15 @@ def spin_up_bot():
     meeting_token = get_meeting_token(room_name, daily_api_key, exp)
 
     proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True, bufsize=1)
-    running_bots.append([proc.pid, room_url, meeting_token])
+
+    # Don't return until the bot has joined the room, but wait for at most 2 seconds.
+    attempts = 0
+    while attempts < 20:
+        time.sleep(0.1)
+        attempts += 1
+        res = requests.get(f"{api_path}/rooms/{room_name}/get-session-data", headers={'Authorization': f'Bearer {daily_api_key}'})
+        if res.status_code == 200:
+            break
+    print(f"Took {attempts} attempts to join room {room_name}")
 
     return jsonify({'room_url': room_url, 'token': meeting_token}), 200
-
-
-@app.route('/bots', methods=['GET'])
-def get_bots():
-    return jsonify({'bots': running_bots}), 200
