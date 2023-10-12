@@ -1,6 +1,4 @@
-import json
 import io
-import random
 import re
 import time
 from datetime import datetime
@@ -179,13 +177,13 @@ class Orchestrator():
             return (url, image)
         except Exception as e:
             print(f"Exception in request_image: {e}")
-    
+
     def request_image_description(self, story_sentences):
         if len(self.story_sentences) == 1:
             prompt = f"You are an illustrator for a children's story book. Generate a prompt for DALL-E to create an illustration for the first page of the book, which reads: \"{self.story_sentences[0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
         else:
             prompt = f"You are an illustrator for a children's story book. Here is the story so far:\n\n\"{' '.join(self.story_sentences[:-1])}\"\n\nGenerate a prompt for DALL-E to create an illustration for the next page. Here's the sentence for the next page:\n\n\"{self.story_sentences[-1:][0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
-        
+
         #prompt += " Children's story book illustration"
         print(f"🎆 Prompt: {prompt}")
         msgs = [{"role": "system", "content": prompt}]
@@ -196,7 +194,7 @@ class Orchestrator():
         image_prompt = re.sub(r'"$', '', image_prompt)
         print(f"🎆 Resulting image prompt: {image_prompt}")
         return image_prompt
-            
+
 
     def handle_audio(self, audio):
         print("🏙️ orchestrator handle audio")

@@ -40,6 +40,8 @@ def spin_up_bot():
     proc = subprocess.Popen([f'python ./daily-llm.py -u {room_url} -t {meeting_token}'], shell=True, bufsize=1)
     running_bots.append([proc.pid, room_url, meeting_token])
 
+    time.sleep(1)
+
     return jsonify({'room_url': room_url, 'token': meeting_token}), 200
 
 
