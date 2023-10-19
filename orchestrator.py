@@ -2,7 +2,9 @@ import json
 import io
 import random
 import re
+import struct
 import time
+import traceback
 from datetime import datetime
 from queue import Queue
 from queue import Empty
@@ -168,8 +170,8 @@ class Orchestrator():
 
     def request_tts(self, text):
         try:
-            audio = self.ai_tts_service.run_tts(text)
-            return audio
+            for chunk in self.ai_tts_service.run_tts(text):
+                yield chunk
         except Exception as e:
             print(f"Exception in request_tts: {e}")
 
@@ -179,13 +181,13 @@ class Orchestrator():
             return (url, image)
         except Exception as e:
             print(f"Exception in request_image: {e}")
-    
+
     def request_image_description(self, story_sentences):
         if len(self.story_sentences) == 1:
             prompt = f"You are an illustrator for a children's story book. Generate a prompt for DALL-E to create an illustration for the first page of the book, which reads: \"{self.story_sentences[0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
         else:
             prompt = f"You are an illustrator for a children's story book. Here is the story so far:\n\n\"{' '.join(self.story_sentences[:-1])}\"\n\nGenerate a prompt for DALL-E to create an illustration for the next page. Here's the sentence for the next page:\n\n\"{self.story_sentences[-1:][0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
-        
+
         #prompt += " Children's story book illustration"
         print(f"🎆 Prompt: {prompt}")
         msgs = [{"role": "system", "content": prompt}]
@@ -196,15 +198,24 @@ class Orchestrator():
         image_prompt = re.sub(r'"$', '', image_prompt)
         print(f"🎆 Resulting image prompt: {image_prompt}")
         return image_prompt
-            
+
 
     def handle_audio(self, audio):
-        print("🏙️ orchestrator handle audio")
-        stream = io.BytesIO(audio)
+        b = bytearray()
+        final = False
+        try:
+            for chunk in audio:
+                b.extend(chunk)
+                l = len(b) - (len(b) % 640)
+                if l:
+                    self.microphone.write_frames(bytes(b[:l]))
+                    b = b[l:]
 
-        # Skip RIFF header
-        stream.read(44)
-        self.microphone.write_frames(stream.read())
+            final = True
+            self.microphone.write_frames(bytes(b))
+            time.sleep(len(b) / 1600)
+        except Exception as e:
+            print(f"Exception in handle_audio: {e}", len(b), final)
 
     def display_image(self, image):
         if self.image_setter:
@@ -245,7 +256,6 @@ class Orchestrator():
                 else:
                     print(f"🎬 Performing sentenceless scene: {type(scene).__name__}")
                 scene.perform()
-                time.sleep(0)
             except Empty:
                 time.sleep(0.1)
                 continue

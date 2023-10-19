@@ -34,7 +34,7 @@ class AzureAIService(AIService):
         print("⌨️ got azure tts result")
         if result.reason == ResultReason.SynthesizingAudioCompleted:
             print("⌨️ returning result")
-            return result.audio_data
+            yield result.audio_data
         elif result.reason == ResultReason.Canceled:
             cancellation_details = result.cancellation_details
             print("Speech synthesis canceled: {}".format(cancellation_details.reason))
