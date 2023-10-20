@@ -34,7 +34,8 @@ class AzureAIService(AIService):
         print("⌨️ got azure tts result")
         if result.reason == ResultReason.SynthesizingAudioCompleted:
             print("⌨️ returning result")
-            yield result.audio_data
+            # azure always sends a 44-byte header. Strip it off.
+            yield result.audio_data[44:]
         elif result.reason == ResultReason.Canceled:
             cancellation_details = result.cancellation_details
             print("Speech synthesis canceled: {}".format(cancellation_details.reason))
