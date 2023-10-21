@@ -13,3 +13,4 @@ flask-cors
 transformers
 sentencepiece
 algoliasearch
+pyht

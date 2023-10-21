@@ -15,16 +15,16 @@ class StartListeningScene(Scene):
 			self.ai_complete_sound = audio_file.readframes(-1)
 
 		super().__init__(**kwargs)
-		
+
 	def prepare(self):
 		print("📣 StartListeningScene prepare")
 		# don't need threads here because image
 		# is effectively instant
 		self.scene_data['image'] = self.grandma_listening
-		self.scene_data['audio'] = self.ai_complete_sound
+		self.scene_data['audio'] = [self.ai_complete_sound]
 		print("📣 StartListeningScene prepare complete")
-		
-	
+
+
 	def perform(self):
 		print("📣 StartListeningScene perform")
 		self.orchestrator.start_listening()

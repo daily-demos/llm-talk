@@ -13,16 +13,16 @@ class StopListeningScene(Scene):
 			# Get audio data as a bytestream
 			self.human_complete_sound = audio_file.readframes(-1)
 		super().__init__(**kwargs)
-		
+
 	def prepare(self):
 		print("🤫 StopListeningScene prepare")
 		# don't need threads here because image
 		# is effectively instant
 		self.scene_data['image'] = self.grandma_writing
-		self.scene_data['audio'] = self.human_complete_sound
+		self.scene_data['audio'] = [self.human_complete_sound]
 		print("🤫 StopListeningScene prepare complete")
-		
-	
+
+
 	def perform(self):
 		print("🤫 StopListeningScene perform")
 		self.orchestrator.stop_listening()
