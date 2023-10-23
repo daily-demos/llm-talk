@@ -1,3 +1,5 @@
+import time
+
 from scenes.scene import Scene
 from threading import Thread
 
@@ -22,7 +24,7 @@ class StoryPageAsyncScene(Scene):
 		try:
 			if self.image:
 				desc = self.orchestrator.request_image_description(self.story_sentences)
-				
+
 				(url, image) = self.orchestrator.request_image(desc)
 				(self.scene_data['url'], self.scene_data['image']) = (url, image)
 				print(f"🌆 fetch image complete for {self.sentence}")
@@ -50,3 +52,5 @@ class StoryPageAsyncScene(Scene):
 		print(f"🌆 StoryPageScene perform sentence: {self.sentence}")
 		super().perform()
 		self.orchestrator.index_scene(self)
+		time.sleep(1)
+		print(f"🌆 StoryPageScene finished sentence: {self.sentence}")

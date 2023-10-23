@@ -125,7 +125,8 @@ class DailyLLM(EventHandler):
             "camera": {
                 "isEnabled": True,
                 "settings": {
-                    "deviceId": "camera"
+                    "deviceId": "camera",
+                    "frameRate": 5,
                 }
             },
             "microphone": {
@@ -134,7 +135,7 @@ class DailyLLM(EventHandler):
                     "deviceId": "mic"
                 }
             }
-        })
+        }, completion=self.inputs_updated_completion)
 
         self.my_participant_id = self.client.participants()['local']['id']
 
@@ -148,7 +149,10 @@ class DailyLLM(EventHandler):
     def on_call_state_updated(self, call_state):
         pass
 
-    def on_inputs_updated(self, inputs):
+    def inputs_updated_completion(self, input_settings, call_error):
+        pass
+
+    def on_inputs_updated(self, input_settings):
         pass
 
     def on_participant_counts_updated(self, participant_counts):
