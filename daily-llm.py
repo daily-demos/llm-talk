@@ -135,34 +135,13 @@ class DailyLLM(EventHandler):
                     "deviceId": "mic"
                 }
             }
-        }, completion=self.inputs_updated_completion)
+        })
 
         self.my_participant_id = self.client.participants()['local']['id']
 
     def call_joined(self, join_data, client_error):
         self.print_debug(f"call_joined: {join_data}, {client_error}")
         self.client.start_transcription()
-
-    def on_participant_updated(self, participant):
-        pass
-
-    def on_call_state_updated(self, call_state):
-        pass
-
-    def inputs_updated_completion(self, input_settings, call_error):
-        pass
-
-    def on_inputs_updated(self, input_settings):
-        pass
-
-    def on_participant_counts_updated(self, participant_counts):
-        pass
-
-    def on_active_speaker_changed(self, active_speaker):
-        pass
-
-    def on_network_stats_updated(self, network_stats):
-        pass
 
     def on_participant_joined(self, participant):
         self.print_debug(f"on_participant_joined: {participant}")
