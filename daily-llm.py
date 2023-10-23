@@ -125,7 +125,8 @@ class DailyLLM(EventHandler):
             "camera": {
                 "isEnabled": True,
                 "settings": {
-                    "deviceId": "camera"
+                    "deviceId": "camera",
+                    "frameRate": 5,
                 }
             },
             "microphone": {
@@ -141,24 +142,6 @@ class DailyLLM(EventHandler):
     def call_joined(self, join_data, client_error):
         self.print_debug(f"call_joined: {join_data}, {client_error}")
         self.client.start_transcription()
-
-    def on_participant_updated(self, participant):
-        pass
-
-    def on_call_state_updated(self, call_state):
-        pass
-
-    def on_inputs_updated(self, inputs):
-        pass
-
-    def on_participant_counts_updated(self, participant_counts):
-        pass
-
-    def on_active_speaker_changed(self, active_speaker):
-        pass
-
-    def on_network_stats_updated(self, network_stats):
-        pass
 
     def on_participant_joined(self, participant):
         self.print_debug(f"on_participant_joined: {participant}")

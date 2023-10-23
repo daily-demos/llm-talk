@@ -11,7 +11,6 @@ from queue import Empty
 
 from search import SearchIndexer
 from services.mock_ai_service import MockAIService
-from scenes.story_page_scene import StoryPageScene
 from scenes.story_page_async_scene import StoryPageAsyncScene
 
 from scenes.story_grandma_scene import StoryGrandmaScene
@@ -34,7 +33,7 @@ class Orchestrator():
         self.tts_getter = None
         self.image_getter = None
 
-        self.messages = [{"role": "system", "content": "You are a storyteller who loves to make up fantastic, fun, and educational stories for children between the ages of 5 and 10 years old. Your stories are full of friendly, magical creatures. Your stories are never scary. Each sentence of your story will become a page in a storybook. Stop after 4-6 sentences and give the child a choice to make that will influence the next part of the story. Once the child responds, start by saying something nice about the choice they made, then include [start] in your response. Include [break] after each sentence of the story. Include [prompt] between the story and the prompt."}]
+        self.messages = [{"role": "system", "content": "You are a storyteller who loves to make up fantastic, fun, and educational stories for children between the ages of 5 and 10 years old. Your stories are full of friendly, magical creatures. Your stories are never scary. Each sentence of your story will become a page in a storybook. Stop after 3-4 sentences and give the child a choice to make that will influence the next part of the story. Once the child responds, start by saying something nice about the choice they made, then include [start] in your response. Include [break] after each sentence of the story. Include [prompt] between the story and the prompt."}]
         self.intro_messages = [{"role": "system", "content": "You are a storyteller who loves to make up fantastic, fun, and educational stories for children between the ages of 5 and 10 years old. Your stories are full of friendly, magical creatures. Your stories are never scary. Begin by asking what a child wants you to tell a story about."}]
 
         self.llm_response_thread = None
