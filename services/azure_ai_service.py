@@ -68,7 +68,7 @@ class AzureAIService(AIService):
             deployment_id = os.getenv("AZURE_DALLE_DEPLOYMENT_ID"),
             prompt=f'{sentence} in the style of {self.image_style}',
             n=1,
-            size=f"512x512",
+            size=f"1024x1024",
         )
 
         url = image["data"][0]["url"]

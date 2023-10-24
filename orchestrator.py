@@ -200,6 +200,7 @@ class Orchestrator():
 
 
     def handle_audio(self, audio):
+        start = time.time()
         b = bytearray()
         final = False
         try:
@@ -215,6 +216,7 @@ class Orchestrator():
             time.sleep(len(b) / 1600)
         except Exception as e:
             print(f"Exception in handle_audio: {e}", len(b), final)
+        print("total time to speak: ", time.time() - start)
 
     def display_image(self, image):
         if self.image_setter:
