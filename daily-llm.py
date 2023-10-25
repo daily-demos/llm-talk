@@ -112,7 +112,7 @@ class DailyLLM(EventHandler):
 
         self.mic = Daily.create_microphone_device("mic", sample_rate = 16000, channels = 1)
         self.speaker = Daily.create_speaker_device("speaker", sample_rate = 16000, channels = 1)
-        self.camera = Daily.create_camera_device("camera", width = 512, height = 512, color_format="RGB")
+        self.camera = Daily.create_camera_device("camera", width = 1024, height = 1024, color_format="RGB")
 
         self.image_gen.set_image_style(self.image_style)
 

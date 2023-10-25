@@ -4,6 +4,7 @@ from PIL import Image
 import io
 import openai
 import os
+import time
 
 class OpenAIService(AIService):
     def __init__(self):
@@ -28,6 +29,7 @@ class OpenAIService(AIService):
 
     def run_image_gen(self, sentence):
         print("🖌️ generating openai image async for ", sentence)
+        start = time.time()
 
         image = openai.Image.create(
             api_type = 'openai',
@@ -36,7 +38,7 @@ class OpenAIService(AIService):
             api_key = os.getenv("OPEN_AI_KEY"),
             prompt=f'{sentence} in the style of {self.image_style}',
             n=1,
-            size=f"512x512",
+            size=f"1024x1024",
         )
         image_url = image["data"][0]["url"]
         print("🖌️ generated image from url", image["data"][0]["url"])
@@ -44,4 +46,6 @@ class OpenAIService(AIService):
         print("🖌️ got image from url", response)
         dalle_stream = io.BytesIO(response.content)
         dalle_im = Image.open(dalle_stream)
+        print("🖌️ total time", time.time() - start)
+
         return (image_url, dalle_im)
