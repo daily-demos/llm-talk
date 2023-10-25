@@ -4,6 +4,10 @@ class AIService:
     def __init__(self):
         pass
 
+    def close(self):
+        # most services don't need to do anything here
+        pass
+
     def set_image_style(self, image_style):
         self.image_style = image_style
 

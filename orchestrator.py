@@ -200,23 +200,26 @@ class Orchestrator():
 
 
     def handle_audio(self, audio):
+        print("!!! Starting speaking")
         start = time.time()
         b = bytearray()
         final = False
+        smallest_write_size = 3200
         try:
             for chunk in audio:
                 b.extend(chunk)
-                l = len(b) - (len(b) % 640)
+                l = len(b) - (len(b) % smallest_write_size)
                 if l:
                     self.microphone.write_frames(bytes(b[:l]))
                     b = b[l:]
 
             final = True
-            self.microphone.write_frames(bytes(b))
-            time.sleep(len(b) / 1600)
+            if len(b):
+                self.microphone.write_frames(bytes(b))
         except Exception as e:
             print(f"Exception in handle_audio: {e}", len(b), final)
-        print("total time to speak: ", time.time() - start)
+        finally:
+            print(f"!!! Finished speaking in {time.time() - start} seconds")
 
     def display_image(self, image):
         if self.image_setter:

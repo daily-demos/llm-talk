@@ -96,6 +96,12 @@ class DailyLLM(EventHandler):
         self.camera_thread.join()
         self.print_debug("camera thread stopped")
 
+        self.tts.close()
+        self.image_gen.close()
+        self.llm.close()
+        print("Services closed.")
+
+
     def print_debug(self, s):
         print(f"{self.room_url} {s}", flush=True)
 
