@@ -7,7 +7,7 @@ from threading import Thread
 # as soon as it's ready.
 class StoryPageAsyncScene(Scene):
 	def __init__(self, **kwargs):
-		print("StoryPageScene init")
+		print("StoryPageAsyncScene init")
 		self.sentence = kwargs.get('sentence', None)
 		self.image = kwargs.get('image', False)
 		self.story_sentences = kwargs.get('story_sentences', None)
@@ -35,7 +35,7 @@ class StoryPageAsyncScene(Scene):
 
 
 	def prepare(self):
-		print(f"🌆 StoryPageScene prepare sentence: {self.sentence}")
+		print(f"🌆 StoryPageAsyncScene prepare sentence: {self.sentence}")
 		# Get intro prompt, then
 		self.image_thread = Thread(target=self.fetch_image)
 		self.image_thread.start()
@@ -45,12 +45,12 @@ class StoryPageAsyncScene(Scene):
 		#self.image_getter.join()
 		if self.audio_thread:
 			self.audio_thread.join()
-		print(f"🌆 StoryPageScene prepare complete for: {self.sentence}")
+		print(f"🌆 StoryPageAsyncScene prepare complete for: {self.sentence}")
 
 
 	def perform(self):
-		print(f"🌆 StoryPageScene perform sentence: {self.sentence}")
+		print(f"🌆 StoryPageAsyncScene perform sentence: {self.sentence}")
 		super().perform()
 		self.orchestrator.index_scene(self)
 		time.sleep(1)
-		print(f"🌆 StoryPageScene finished sentence: {self.sentence}")
+		print(f"🌆 StoryPageAsyncScene finished sentence: {self.sentence}")

@@ -23,7 +23,9 @@ class PlayHTAIService(AIService):
             voice="s3://voice-cloning-zero-shot/820da3d2-3a3b-42e7-844d-e68db835a206/sarah/manifest.json",
             sample_rate=16000,
             quality="higher",
-            format=Format.FORMAT_WAV
+            format=Format.FORMAT_WAV,
+            temperature = 1.0,
+            top_p = 1.0
         )
 
     def close(self):
