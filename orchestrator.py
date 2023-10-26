@@ -198,7 +198,7 @@ class Orchestrator():
         image_prompt = re.sub(r'^"', '', image_prompt)
         image_prompt = re.sub(r'"$', '', image_prompt)
         self.logger.info(f"🎆 Resulting image prompt: {image_prompt}")
-        self.logger.info(f"==== time to run llm {time.time() - start}")
+        self.logger.info(f"==== time to run llm for image generation {time.time() - start}")
         return image_prompt
 
 
