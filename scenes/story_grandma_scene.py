@@ -3,9 +3,9 @@ from threading import Thread
 
 class StoryGrandmaScene(Scene):
 	def __init__(self, **kwargs):
-		print("StoryGrandmaScene init")
 		self.sentence = kwargs.get('sentence', None)
 		super().__init__(**kwargs)
+		print("StoryGrandmaScene init")
 
 	def prepare(self):
 		print(f"👩‍💼 StoryGrandmaScene prepare sentence: {self.sentence}")

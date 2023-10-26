@@ -20,7 +20,7 @@ from scenes.start_listening_scene import StartListeningScene
 from threading import Thread
 
 class Orchestrator():
-    def __init__(self, image_setter, microphone, ai_tts_service, ai_image_gen_service, ai_llm_service, story_id):
+    def __init__(self, image_setter, microphone, ai_tts_service, ai_image_gen_service, ai_llm_service, story_id, logger):
         self.image_setter = image_setter
         self.microphone = microphone
 
@@ -44,16 +44,18 @@ class Orchestrator():
         self.image_this_time = True
         self.story_sentences = []
 
+        self.logger = logger
+
 
 
     def handle_user_speech(self, user_speech):
-        print(f"👅 Handling user speech: {user_speech}")
+        self.logger.info(f"👅 Handling user speech: {user_speech}")
         if not self.llm_response_thread or not self.llm_response_thread.is_alive():
             self.enqueue(StopListeningScene)
             self.llm_response_thread = Thread(target=self.request_llm_response, args=(user_speech,))
             self.llm_response_thread.start()
         else:
-            print("discarding overlapping speech, TODO barge-in")
+            self.logger.info("discarding overlapping speech, TODO barge-in")
 
     def start_listening(self):
         self.started_listening_at = datetime.now()
@@ -70,7 +72,7 @@ class Orchestrator():
             response = self.ai_llm_service.run_llm(self.messages)
             self.handle_llm_response(response)
         except Exception as e:
-            print(f"Exception in request_llm_response: {e}")
+            self.logger.info(f"Exception in request_llm_response: {e}")
 
     def request_intro(self):
         response = self.ai_llm_service.run_llm(self.intro_messages)
@@ -100,7 +102,7 @@ class Orchestrator():
                     next_chunk = chunk["choices"][0]["delta"]["content"]
                     out += next_chunk
                     full_response += next_chunk
-                    #print(f"🎬 Out: {out}")
+                    #self.logger.info(f"🎬 Out: {out}")
 
                     #if re.match(r'^.*[.!?]$', out): # it looks like a sentence
                     if prompt_started == False:
@@ -149,10 +151,10 @@ class Orchestrator():
 
                         out = ''
         # get the last one too; it should be the prompt
-        print(f"🎬 FINAL Out: {out}")
+        self.logger.info(f"🎬 FINAL Out: {out}")
         self.enqueue(StoryGrandmaScene, sentence=out)
         self.enqueue(StartListeningScene)
-        print(f"🎬 FULL MESSAGE: {full_response}")
+        self.logger.info(f"🎬 FULL MESSAGE: {full_response}")
         self.messages.append({"role": "assistant", "content": full_response})
         self.image_this_time = False
 
@@ -172,14 +174,14 @@ class Orchestrator():
             for chunk in self.ai_tts_service.run_tts(text):
                 yield chunk
         except Exception as e:
-            print(f"Exception in request_tts: {e}")
+            self.logger.info(f"Exception in request_tts: {e}")
 
     def request_image(self, text):
         try:
             (url, image) = self.ai_image_gen_service.run_image_gen(text)
             return (url, image)
         except Exception as e:
-            print(f"Exception in request_image: {e}")
+            self.logger.info(f"Exception in request_image: {e}")
 
     def request_image_description(self, story_sentences):
         if len(self.story_sentences) == 1:
@@ -188,19 +190,19 @@ class Orchestrator():
             prompt = f"You are an illustrator for a children's story book. Here is the story so far:\n\n\"{' '.join(self.story_sentences[:-1])}\"\n\nGenerate a prompt for DALL-E to create an illustration for the next page. Here's the sentence for the next page:\n\n\"{self.story_sentences[-1:][0]}\"\n\n Your response should start with the phrase \"Children's book illustration of\"."
 
         #prompt += " Children's story book illustration"
-        print(f"🎆 Prompt: {prompt}")
+        self.logger.info(f"🎆 Prompt: {prompt}")
         msgs = [{"role": "system", "content": prompt}]
         img_response = self.ai_llm_service.run_llm(msgs, stream = False)
         image_prompt = img_response['choices'][0]['message']['content']
         # It comes back wrapped in quotes for some reason
         image_prompt = re.sub(r'^"', '', image_prompt)
         image_prompt = re.sub(r'"$', '', image_prompt)
-        print(f"🎆 Resulting image prompt: {image_prompt}")
+        self.logger.info(f"🎆 Resulting image prompt: {image_prompt}")
         return image_prompt
 
 
     def handle_audio(self, audio):
-        print("!!! Starting speaking")
+        self.logger.info("!!! Starting speaking")
         start = time.time()
         b = bytearray()
         final = False
@@ -213,13 +215,12 @@ class Orchestrator():
                     self.microphone.write_frames(bytes(b[:l]))
                     b = b[l:]
 
-            final = True
             if len(b):
                 self.microphone.write_frames(bytes(b))
         except Exception as e:
-            print(f"Exception in handle_audio: {e}", len(b), final)
+            self.logger.info(f"Exception in handle_audio: {e}")
         finally:
-            print(f"!!! Finished speaking in {time.time() - start} seconds")
+            self.logger.info(f"!!! Finished speaking in {time.time() - start} seconds")
 
     def display_image(self, image):
         if self.image_setter:
@@ -228,6 +229,7 @@ class Orchestrator():
     def enqueue(self, scene_type, **kwargs):
         # Take the newly created scene object, call its prepare function, and queue it to perform
         kwargs['orchestrator'] = self
+        kwargs['logger'] = self.logger
         self.scene_queue.put(scene_type(**kwargs))
         pass
 
@@ -252,29 +254,14 @@ class Orchestrator():
         while True:
             try:
                 if self.stop_threads:
-                    print("🎬 Shutting down playback thread")
+                    self.logger.info("🎬 Shutting down playback thread")
                     break
                 scene = self.scene_queue.get(block=False)
                 if 'sentence' in scene.__dict__:
-                    print(f"🎬 Performing scene: {type(scene).__name__}, {scene.sentence}")
+                    self.logger.info(f"🎬 Performing scene: {type(scene).__name__}, {scene.sentence}")
                 else:
-                    print(f"🎬 Performing sentenceless scene: {type(scene).__name__}")
+                    self.logger.info(f"🎬 Performing sentenceless scene: {type(scene).__name__}")
                 scene.perform()
             except Empty:
                 time.sleep(0.1)
                 continue
-
-
-if __name__ == "__main__":
-    mock_ai_service = MockAIService()
-    class MockImageSetter():
-        def set_image(self, image):
-            print("setting image", image)
-
-    class MockMicrophone():
-        def write_frames(self, frames):
-            print("writing frames")
-
-    uim = Orchestrator("context", MockImageSetter(), MockMicrophone(), mock_ai_service, mock_ai_service, mock_ai_service, 0)
-    uim.handle_user_speech("hello world")
-

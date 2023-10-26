@@ -7,18 +7,18 @@ from threading import Thread
 # as soon as it's ready.
 class StoryPageAsyncScene(Scene):
 	def __init__(self, **kwargs):
-		print("StoryPageAsyncScene init")
 		self.sentence = kwargs.get('sentence', None)
 		self.image = kwargs.get('image', False)
 		self.story_sentences = kwargs.get('story_sentences', None)
 		super().__init__(**kwargs)
+		self.logger.info("StoryPageAsyncScene init")
 
 	def fetch_audio(self):
 		try:
 			self.scene_data['audio'] = self.orchestrator.request_tts(self.sentence)
-			print(f"🌆 fetch audio complete for {self.sentence}")
+			self.logger.info(f"🌆 fetch audio complete for {self.sentence}")
 		except Exception as e:
-			print(f"Exception in fetch_audio {e}")
+			self.logger.info(f"Exception in fetch_audio {e}")
 
 	def fetch_image(self):
 		try:
@@ -27,15 +27,15 @@ class StoryPageAsyncScene(Scene):
 
 				(url, image) = self.orchestrator.request_image(desc)
 				(self.scene_data['url'], self.scene_data['image']) = (url, image)
-				print(f"🌆 fetch image complete for {self.sentence}")
+				self.logger.info(f"🌆 fetch image complete for {self.sentence}")
 			else:
-				print(f"🌆 Skipping image for {self.sentence}")
+				self.logger.info(f"🌆 Skipping image for {self.sentence}")
 		except Exception as e:
-			print(f"Exception in fetch_image {e}")
+			self.logger.info(f"Exception in fetch_image {e}")
 
 
 	def prepare(self):
-		print(f"🌆 StoryPageAsyncScene prepare sentence: {self.sentence}")
+		self.logger.info(f"🌆 StoryPageAsyncScene prepare sentence: {self.sentence}")
 		# Get intro prompt, then
 		self.image_thread = Thread(target=self.fetch_image)
 		self.image_thread.start()
@@ -45,12 +45,12 @@ class StoryPageAsyncScene(Scene):
 		#self.image_getter.join()
 		if self.audio_thread:
 			self.audio_thread.join()
-		print(f"🌆 StoryPageAsyncScene prepare complete for: {self.sentence}")
+		self.logger.info(f"🌆 StoryPageAsyncScene prepare complete for: {self.sentence}")
 
 
 	def perform(self):
-		print(f"🌆 StoryPageAsyncScene perform sentence: {self.sentence}")
+		self.logger.info(f"🌆 StoryPageAsyncScene perform sentence: {self.sentence}")
 		super().perform()
 		self.orchestrator.index_scene(self)
 		time.sleep(1)
-		print(f"🌆 StoryPageAsyncScene finished sentence: {self.sentence}")
+		self.logger.info(f"🌆 StoryPageAsyncScene finished sentence: {self.sentence}")
