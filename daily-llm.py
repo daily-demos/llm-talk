@@ -53,8 +53,7 @@ class DailyLLM(EventHandler):
         self.logger = logging.getLogger('bot-instance')
         self.logger.setLevel(logging.DEBUG)
 
-        self.logger.info(f"Joining {self.room_url} as {self.bot_name} leaving at {self.expiration} current time is {time.time()}")
-
+        self.logger.info(f"Joining as {self.bot_name}")
         self.logger.info(f"expiration: {datetime.utcfromtimestamp(self.expiration).strftime('%Y-%m-%d %H:%M:%S')}")
         self.logger.info(f"now: {datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
 
@@ -92,7 +91,7 @@ class DailyLLM(EventHandler):
                     self.send_transcription()
                 time.sleep(1)
         except Exception as e:
-            self.logger.info(f"Exception {e}")
+            self.logger.error(f"Exception {e}")
         finally:
             self.client.leave()
 
@@ -198,7 +197,7 @@ class DailyLLM(EventHandler):
                     self.camera.write_frame(self.image.tobytes())
                 time.sleep(1.0 / 15.0) # 15 fps
         except Exception as e:
-            self.logger.info(f"Exception {e} in camera thread.")
+            self.logger.error(f"Exception {e} in camera thread.")
 
     def wave(self):
         self.client.send_app_message({

@@ -72,7 +72,7 @@ class Orchestrator():
             response = self.ai_llm_service.run_llm(self.messages)
             self.handle_llm_response(response)
         except Exception as e:
-            self.logger.info(f"Exception in request_llm_response: {e}")
+            self.logger.error(f"Exception in request_llm_response: {e}")
 
     def request_intro(self):
         response = self.ai_llm_service.run_llm(self.intro_messages)
@@ -102,7 +102,6 @@ class Orchestrator():
                     next_chunk = chunk["choices"][0]["delta"]["content"]
                     out += next_chunk
                     full_response += next_chunk
-                    #self.logger.info(f"🎬 Out: {out}")
 
                     #if re.match(r'^.*[.!?]$', out): # it looks like a sentence
                     if prompt_started == False:
@@ -174,14 +173,14 @@ class Orchestrator():
             for chunk in self.ai_tts_service.run_tts(text):
                 yield chunk
         except Exception as e:
-            self.logger.info(f"Exception in request_tts: {e}")
+            self.logger.error(f"Exception in request_tts: {e}")
 
     def request_image(self, text):
         try:
             (url, image) = self.ai_image_gen_service.run_image_gen(text)
             return (url, image)
         except Exception as e:
-            self.logger.info(f"Exception in request_image: {e}")
+            self.logger.error(f"Exception in request_image: {e}")
 
     def request_image_description(self, story_sentences):
         if len(self.story_sentences) == 1:
@@ -218,7 +217,7 @@ class Orchestrator():
             if len(b):
                 self.microphone.write_frames(bytes(b))
         except Exception as e:
-            self.logger.info(f"Exception in handle_audio: {e}")
+            self.logger.error(f"Exception in handle_audio: {e}")
         finally:
             self.logger.info(f"!!! Finished speaking in {time.time() - start} seconds")
 

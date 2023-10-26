@@ -13,7 +13,7 @@ class StoryPageScene(Scene):
 			self.scene_data['audio'] = self.orchestrator.request_tts(self.sentence)
 			self.logger.info(f"🌆 fetch audio complete for {self.sentence}")
 		except Exception as e:
-			self.logger.info(f"Exception in fetch_audio {e}")
+			self.logger.error(f"Exception in fetch_audio {e}")
 
 	def fetch_image(self):
 		try:
@@ -21,7 +21,7 @@ class StoryPageScene(Scene):
 			(self.scene_data['url'], self.scene_data['image']) = (url, image)
 			self.logger.info(f"🌆 fetch image complete for {self.sentence}")
 		except Exception as e:
-			self.logger.info(f"Exception in fetch_image {e}")
+			self.logger.error(f"Exception in fetch_image {e}")
 
 	def prepare(self):
 		self.logger.info(f"🌆 StoryPageScene prepare sentence: {self.sentence}")
