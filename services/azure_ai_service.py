@@ -1,9 +1,11 @@
+import json
+import io
+import openai
+import os
+import requests
+
 from services.ai_service import AIService
 from PIL import Image
-import openai
-import requests
-import os
-import io
 
 # See .env.example for Azure configuration needed
 from azure.cognitiveservices.speech import SpeechSynthesizer, SpeechConfig, ResultReason, CancellationReason
@@ -44,7 +46,8 @@ class AzureAIService(AIService):
 
     # generate a chat using Azure OpenAI based on the participant's most recent speech
     def run_llm(self, messages, stream = True):
-        self.logger.info("generating chat")
+        messages_for_log = json.dumps(messages)
+        self.logger.error(f"==== generating chat via azure openai: {messages_for_log}")
 
         response = openai.ChatCompletion.create(
             api_type = 'azure',

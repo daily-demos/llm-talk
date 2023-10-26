@@ -191,12 +191,14 @@ class Orchestrator():
         #prompt += " Children's story book illustration"
         self.logger.info(f"🎆 Prompt: {prompt}")
         msgs = [{"role": "system", "content": prompt}]
+        start = time.time()
         img_response = self.ai_llm_service.run_llm(msgs, stream = False)
         image_prompt = img_response['choices'][0]['message']['content']
         # It comes back wrapped in quotes for some reason
         image_prompt = re.sub(r'^"', '', image_prompt)
         image_prompt = re.sub(r'"$', '', image_prompt)
         self.logger.info(f"🎆 Resulting image prompt: {image_prompt}")
+        self.logger.info(f"==== time to run llm {time.time() - start}")
         return image_prompt
 
 
