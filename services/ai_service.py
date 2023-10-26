@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 class AIService:
     def __init__(self):
-        pass
+        self.image_style = None
 
     def close(self):
         # most services don't need to do anything here
