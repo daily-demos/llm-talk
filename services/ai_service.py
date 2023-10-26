@@ -2,6 +2,10 @@ from abc import abstractmethod
 
 class AIService:
     def __init__(self):
+        self.image_style = None
+
+    def close(self):
+        # most services don't need to do anything here
         pass
 
     def set_image_style(self, image_style):

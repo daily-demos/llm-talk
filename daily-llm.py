@@ -27,24 +27,24 @@ class DailyLLM(EventHandler):
             image_style="watercolor illustrated children's book", # keep the generated images to a certain theme, like "golden age of illustration," "talented kid's crayon drawing", etc.
         ):
 
-        # room + bot details
-        self.room_url = room_url
-        room_name = get_room_name(room_url)
-        if token:
-            self.token = token
-        else:
-            self.token = get_meeting_token(room_name, os.getenv("DAILY_API_KEY"))
-        self.bot_name = bot_name
-        self.image_style = image_style
-
         duration = os.getenv("BOT_MAX_DURATION")
         if not duration:
             duration = 300
         else:
             duration = int(duration)
         self.expiration = time.time() + duration
-        self.story_started = False
 
+        # room + bot details
+        self.room_url = room_url
+        room_name = get_room_name(room_url)
+        if token:
+            self.token = token
+        else:
+            self.token = get_meeting_token(room_name, os.getenv("DAILY_API_KEY"), self.expiration)
+        self.bot_name = bot_name
+        self.image_style = image_style
+
+        self.story_started = False
         self.finished_talking_at = None
 
 
@@ -95,6 +95,12 @@ class DailyLLM(EventHandler):
         self.print_debug("Shutting down")
         self.camera_thread.join()
         self.print_debug("camera thread stopped")
+
+        self.tts.close()
+        self.image_gen.close()
+        self.llm.close()
+        print("Services closed.")
+
 
     def print_debug(self, s):
         print(f"{self.room_url} {s}", flush=True)

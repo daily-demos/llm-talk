@@ -26,6 +26,10 @@ class PlayHTAIService(AIService):
             format=Format.FORMAT_WAV
         )
 
+    def close(self):
+        super().close()
+        self.client.close()
+
     def run_tts(self, sentence):
         b = bytearray()
         in_header = True

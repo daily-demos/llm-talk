@@ -11,7 +11,7 @@ COPY grandma-writing.png /app
 COPY ai.wav /app
 COPY human.wav /app
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install --upgrade -r requirements.txt
 
 # version conflict caused by daily
 RUN pip3 install gunicorn flask flask-cors transformers sentencepiece algoliasearch
