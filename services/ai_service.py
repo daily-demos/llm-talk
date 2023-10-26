@@ -1,8 +1,10 @@
 from abc import abstractmethod
+import logging
 
 class AIService:
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.image_style = None
+        self.logger = kwargs.get('logger', logging.getLogger('ai-service'))
 
     def close(self):
         # most services don't need to do anything here

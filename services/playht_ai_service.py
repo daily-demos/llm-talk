@@ -43,12 +43,12 @@ class PlayHTAIService(AIService):
                     fh = io.BytesIO(b)
                     fh.seek(36)
                     (data, size) = struct.unpack('<4sI', fh.read(8))
-                    print(f"first attempt: data: {data}, size: {hex(size)}, position: {fh.tell()}")
+                    self.logger.info(f"first attempt: data: {data}, size: {hex(size)}, position: {fh.tell()}")
                     while data != b'data':
                         fh.read(size)
                         (data, size) = struct.unpack('<4sI', fh.read(8))
-                        print(f"subsequent data: {data}, size: {hex(size)}, position: {fh.tell()}, data != data: {data != b'data'}")
-                    print("position: ", fh.tell())
+                        self.logger.info(f"subsequent data: {data}, size: {hex(size)}, position: {fh.tell()}, data != data: {data != b'data'}")
+                    self.logger.info("position: ", fh.tell())
                     in_header = False
             else:
                 if len(chunk):

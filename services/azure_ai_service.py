@@ -1,9 +1,11 @@
+import json
+import io
+import openai
+import os
+import requests
+
 from services.ai_service import AIService
 from PIL import Image
-import openai
-import requests
-import os
-import io
 
 # See .env.example for Azure configuration needed
 from azure.cognitiveservices.speech import SpeechSynthesizer, SpeechConfig, ResultReason, CancellationReason
@@ -21,7 +23,7 @@ class AzureAIService(AIService):
         self.speech_synthesizer = SpeechSynthesizer(speech_config=self.speech_config, audio_config=None)
 
     def run_tts(self, sentence):
-        print("⌨️ running azure tts async")
+        self.logger.info("⌨️ running azure tts async")
         ssml = "<speak version='1.0' xml:lang='en-US' xmlns='http://www.w3.org/2001/10/synthesis' " \
            "xmlns:mstts='http://www.w3.org/2001/mstts'>" \
            "<voice name='en-US-SaraNeural'>" \
@@ -31,20 +33,21 @@ class AzureAIService(AIService):
            f"{sentence}" \
            "</prosody></mstts:express-as></voice></speak> "
         result = self.speech_synthesizer.speak_ssml(ssml)
-        print("⌨️ got azure tts result")
+        self.logger.info("⌨️ got azure tts result")
         if result.reason == ResultReason.SynthesizingAudioCompleted:
-            print("⌨️ returning result")
+            self.logger.info("⌨️ returning result")
             # azure always sends a 44-byte header. Strip it off.
             yield result.audio_data[44:]
         elif result.reason == ResultReason.Canceled:
             cancellation_details = result.cancellation_details
-            print("Speech synthesis canceled: {}".format(cancellation_details.reason))
+            self.logger.info("Speech synthesis canceled: {}".format(cancellation_details.reason))
             if cancellation_details.reason == CancellationReason.Error:
-                print("Error details: {}".format(cancellation_details.error_details))
+                self.logger.info("Error details: {}".format(cancellation_details.error_details))
 
     # generate a chat using Azure OpenAI based on the participant's most recent speech
     def run_llm(self, messages, stream = True):
-        print("generating chat")
+        messages_for_log = json.dumps(messages)
+        self.logger.error(f"==== generating chat via azure openai: {messages_for_log}")
 
         response = openai.ChatCompletion.create(
             api_type = 'azure',
@@ -58,7 +61,7 @@ class AzureAIService(AIService):
         return response
 
     def run_image_gen(self, sentence):
-        print("generating azure image", sentence)
+        self.logger.info("generating azure image", sentence)
 
         image = openai.Image.create(
             api_type = 'azure',
