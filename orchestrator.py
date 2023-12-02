@@ -82,11 +82,11 @@ class Orchestrator():
         # Do this all as one piece, at least for now
         out = ''
         for chunk in llm_response:
-            if len(chunk["choices"]) == 0:
+            if len(chunk.choices):
                 continue
-            if "content" in chunk["choices"][0]["delta"]:
-                if chunk["choices"][0]["delta"]["content"] != {}: #streaming a content chunk
-                    next_chunk = chunk["choices"][0]["delta"]["content"]
+            if chunk.choices[0].delta.content:
+                if chunk.choices[0].delta.content != {}: #streaming a content chunk
+                    next_chunk = chunk.choices[0].delta.content
                     out += next_chunk
         return self.ai_tts_service.run_tts(out)
 
@@ -95,11 +95,11 @@ class Orchestrator():
         full_response = ''
         prompt_started = False
         for chunk in llm_response:
-            if len(chunk["choices"]) == 0:
+            if len(chunk.choices) == 0:
                 continue
-            if "content" in chunk["choices"][0]["delta"]:
-                if chunk["choices"][0]["delta"]["content"] != {}: #streaming a content chunk
-                    next_chunk = chunk["choices"][0]["delta"]["content"]
+            if chunk.choices[0].delta.content:
+                if chunk.choices[0].delta.content != {}: #streaming a content chunk
+                    next_chunk = chunk.choices[0].delta.content
                     out += next_chunk
                     full_response += next_chunk
 

@@ -1,6 +1,8 @@
 import json
 import io
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 import os
 import requests
 
@@ -49,30 +51,26 @@ class AzureAIService(AIService):
         messages_for_log = json.dumps(messages)
         self.logger.error(f"==== generating chat via azure openai: {messages_for_log}")
 
-        response = openai.ChatCompletion.create(
-            api_type = 'azure',
-            api_version = '2023-06-01-preview',
-            api_key = os.getenv("AZURE_CHATGPT_KEY"),
-            api_base = os.getenv("AZURE_CHATGPT_ENDPOINT"),
-            deployment_id=os.getenv("AZURE_CHATGPT_DEPLOYMENT_ID"),
-            stream=stream,
-            messages=messages
-        )
+        response = client.chat.completions.create(api_type = 'azure',
+        api_version = '2023-06-01-preview',
+        api_key = os.getenv("AZURE_CHATGPT_KEY"),
+        api_base = os.getenv("AZURE_CHATGPT_ENDPOINT"),
+        deployment_id=os.getenv("AZURE_CHATGPT_DEPLOYMENT_ID"),
+        stream=stream,
+        messages=messages)
         return response
 
     def run_image_gen(self, sentence):
         self.logger.info("generating azure image", sentence)
 
-        image = openai.Image.create(
-            api_type = 'azure',
-            api_version = '2023-06-01-preview',
-            api_key = os.getenv('AZURE_DALLE_KEY'),
-            api_base = os.getenv('AZURE_DALLE_ENDPOINT'),
-            deployment_id = os.getenv("AZURE_DALLE_DEPLOYMENT_ID"),
-            prompt=f'{sentence} in the style of {self.image_style}',
-            n=1,
-            size=f"1024x1024",
-        )
+        image = client.images.generate(api_type = 'azure',
+        api_version = '2023-06-01-preview',
+        api_key = os.getenv('AZURE_DALLE_KEY'),
+        api_base = os.getenv('AZURE_DALLE_ENDPOINT'),
+        deployment_id = os.getenv("AZURE_DALLE_DEPLOYMENT_ID"),
+        prompt=f'{sentence} in the style of {self.image_style}',
+        n=1,
+        size=f"1024x1024")
 
         url = image["data"][0]["url"]
         response = requests.get(url)
